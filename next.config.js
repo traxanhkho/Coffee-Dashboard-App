@@ -4,7 +4,6 @@
 // };
 
 // module.exports = nextConfig;
-
 const dotenv = require("dotenv");
 
 const configuration = dotenv.config({ silent: true });
