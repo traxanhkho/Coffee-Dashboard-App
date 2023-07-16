@@ -3,10 +3,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Inter } from "next/font/google";
 import AuthProvider from "@/context/AuthContext";
 import NextAuthProvider from "@/components/NextAuthProvider";
-import Layouts from "@/components/Layouts";
-import Slidebar from "@/components/Slidebar";
 import LayoutProvider from "@/context/LayoutContext";
-
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
