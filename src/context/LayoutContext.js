@@ -1,4 +1,5 @@
 "use client";
+import _ from "lodash";
 import { createContext, useContext, useEffect, useState } from "react";
 import {
   ChartPieIcon,
@@ -6,10 +7,11 @@ import {
   UsersIcon,
 } from "@heroicons/react/24/outline";
 import CoffeeIcon from "@/assets/icons/coffee.svg";
-import ToppingIcon from "@/assets/icons/topping.svg";
-import UiIcon from "@/assets/icons/ui.svg";
+import PeopleRoofSolid from "@/assets/icons/people-roof-solid.svg";
+import CandyCaneSolid from "@/assets/icons/candy-cane-solid.svg";
+import IconsSolid from "@/assets/icons/icons-solid.svg";
+import AddressCardRegular from "@/assets/icons/address-card-regular.svg";
 import { usePathname } from "next/navigation";
-import _ from "lodash";
 
 const LayoutContext = createContext();
 
@@ -28,7 +30,7 @@ function LayoutProvider({ children }) {
       name: "Topping",
       href: "/toppings",
       icon: () => (
-        <ToppingIcon className="mr-4 h-6 w-6 fill-current flex-shrink-0 text-indigo-300" />
+        <CandyCaneSolid className="mr-4 h-6 w-6 fill-current flex-shrink-0 text-indigo-300" />
       ),
       current: false,
     },
@@ -48,16 +50,27 @@ function LayoutProvider({ children }) {
       name: "Giao Diện",
       href: "/interfaces",
       icon: () => (
-        <UiIcon className="mr-4 h-6 w-6 fill-current flex-shrink-0 text-indigo-300" />
+        <IconsSolid className="mr-4 h-6 w-6 fill-current flex-shrink-0 text-indigo-300" />
       ),
       current: false,
     },
     {
-      name: "DS Quản Lý",
+      name: "Nhân Viên",
       href: "/users",
-      icon: UsersIcon,
+      icon: () => (
+        <PeopleRoofSolid className="mr-4 h-6 w-6 fill-current flex-shrink-0 text-indigo-300" />
+      ),
       current: false,
     },
+    {
+      name: "Thông Tin Cá Nhân",
+      href: "/profile",
+      icon: () => (
+        <AddressCardRegular className="mr-4 h-6 w-6 fill-current flex-shrink-0 text-indigo-300" />
+      ),
+      current: false,
+    },
+    
   ]);
   const pathname = usePathname();
 
