@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import AuthProvider from "@/context/AuthContext";
 import NextAuthProvider from "@/components/NextAuthProvider";
 import LayoutProvider from "@/context/LayoutContext";
+import LoadingProgress from "@/components/LoadingProgress";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -17,7 +18,9 @@ export default function RootLayout({ children }) {
       <body className={inter.className} suppressHydrationWarning={true}>
         <NextAuthProvider>
           <AuthProvider>
-            <LayoutProvider>{children}</LayoutProvider>
+            <LayoutProvider>
+              <LoadingProgress>{children}</LoadingProgress>
+            </LayoutProvider>
           </AuthProvider>
         </NextAuthProvider>
       </body>
