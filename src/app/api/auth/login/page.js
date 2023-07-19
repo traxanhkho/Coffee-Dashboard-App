@@ -1,13 +1,12 @@
 "use client";
 import { useAuth } from "@/context/AuthContext";
 import { useSession } from "next-auth/react";
-import { useEffect } from "react";
 import Link from "next/link";
-import { redirect, useRouter } from "next/navigation";
+import {  useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export default function Login() {
-  const { login, currentUser } = useAuth();
+  const { login } = useAuth();
   const { data: session, status } = useSession();
   const {
     register,

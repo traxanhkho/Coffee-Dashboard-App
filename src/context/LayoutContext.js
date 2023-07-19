@@ -9,7 +9,6 @@ import CoffeeIcon from "@/assets/icons/coffee.svg";
 import ToppingIcon from "@/assets/icons/topping.svg";
 import UiIcon from "@/assets/icons/ui.svg";
 import { usePathname } from "next/navigation";
-import { useAuth } from "./AuthContext";
 import _ from "lodash";
 
 const LayoutContext = createContext();
@@ -60,18 +59,19 @@ function LayoutProvider({ children }) {
       current: false,
     },
   ]);
-  const [pathname, setPathname] = useState("/" + usePathname().split("/")[1]);
+  const pathname = usePathname();
 
-  const { currentUser } = useAuth();
   useEffect(() => {
+    const currentPath = "/" + pathname.split("/")[1];
+
     const navUpdated = navigation.map((nav) =>
-      nav.href !== pathname
+      nav.href !== currentPath
         ? { ...nav, current: false }
         : { ...nav, current: true }
     );
 
     setNavigation(navUpdated);
-  }, [currentUser]);
+  }, [pathname]);
 
   const onChangeNavigation = (name) => {
     const newNavigation = navigation.map((item) =>
@@ -96,5 +96,4 @@ function LayoutProvider({ children }) {
 }
 
 export const useLayout = () => useContext(LayoutContext);
-
 export default LayoutProvider;

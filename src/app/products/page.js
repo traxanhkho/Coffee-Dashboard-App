@@ -75,7 +75,7 @@ export default function Products() {
       path: "name",
       label: "Tên",
       content: (product) => (
-        <Link href={`/products/${product._id}`} className="flex items-center">
+        <div className="flex items-center">
           <div className="h-10 w-10 flex-shrink-0">
             {product.image && (
               <img
@@ -96,7 +96,7 @@ export default function Products() {
               {product.description}
             </div>
           </div>
-        </Link>
+        </div>
       ),
     },
     {
