@@ -21,7 +21,7 @@ import { getGenres } from "@/services/genreService";
 import { getToppings } from "@/services/toppingService";
 import Layouts from "@/components/Layouts";
 
-export default function productForm() {
+export default function ProductForm() {
   const [openModal, setOpenModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [currentProduct, setCurrentProduct] = useState(null);
