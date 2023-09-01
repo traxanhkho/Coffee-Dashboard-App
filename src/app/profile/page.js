@@ -70,7 +70,7 @@ export default function Profile() {
 
     try {
       const { data } = await axios.put(
-        `http://localhost:5000/api/profiles/${profile.userId._id}`,
+        `${process.env.NEXT_PUBLIC_API_KEY}/profiles/${profile.userId._id}`,
         formData
       );
 

@@ -3,7 +3,7 @@ import axios from "axios";
 import Joi from "joi";
 import { toast } from "react-toastify";
 
-axios.defaults.baseURL = process.env.API_URL;
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_KEY;
 
 const apiEndpoint = "/orders";
 

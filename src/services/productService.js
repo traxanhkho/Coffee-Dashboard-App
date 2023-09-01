@@ -4,7 +4,7 @@ import Joi from "joi";
 import _ from "lodash";
 import { toast } from "react-toastify";
 
-axios.defaults.baseURL = process.env.API_URL;
+axios.defaults.baseURL = process.env.NEXT_PUBLIC_API_KEY;
 
 const apiEndpoint = "/products";
 
@@ -150,8 +150,7 @@ export async function saveProduct(
   productId,
   selectedFile,
   checkedToppingIds,
-  setError,
-  router
+  setError
 ) {
  
   const productUpdated = {

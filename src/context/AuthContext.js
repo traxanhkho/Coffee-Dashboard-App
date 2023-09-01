@@ -50,7 +50,7 @@ function AuthProvider({ children }) {
 
     try {
       const { data: newUser } = await axios.post(
-        "http://localhost:5000/api/users",
+        `${process.env.NEXT_PUBLIC_API_KEY}/users`,
         _.pick(userData, ["name", "email", "password"])
       );
 

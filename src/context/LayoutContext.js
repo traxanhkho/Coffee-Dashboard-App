@@ -75,7 +75,7 @@ function LayoutProvider({ children }) {
   const getDataFromServer = async () => {
     if (!session) return;
     const { data: profileSelected } = await axios.get(
-      "http://localhost:5000/api/profiles/me",
+      `${process.env.NEXT_PUBLIC_API_KEY}/profiles/me`,
       {
         headers: {
           "x-auth-token": session?.token,

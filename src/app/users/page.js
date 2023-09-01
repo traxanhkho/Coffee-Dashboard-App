@@ -64,7 +64,7 @@ function Users() {
 
   const getUsersWithAuthToken = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/users", {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_KEY}/users`, {
         headers: {
           "x-auth-token": session?.token, // Replace 'token' with your actual token value
         },

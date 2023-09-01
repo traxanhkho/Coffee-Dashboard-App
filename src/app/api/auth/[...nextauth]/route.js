@@ -30,7 +30,7 @@ export const authOptions = {
       async authorize(credentials, req) {
         try {
           const { data: jwt } = await axios.post(
-            "http://localhost:5000/api/auth",
+            `${process.env.NEXT_PUBLIC_API_KEY}/auth`,
             {
               email: credentials.email,
               password: credentials.password,
@@ -63,7 +63,7 @@ export const authOptions = {
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXT_PUBLIC_NEXTAUTH_SECRET,
   pages: {
     signIn: "/api/auth/login",
   },

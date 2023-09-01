@@ -22,7 +22,6 @@ import { getToppings } from "@/services/toppingService";
 import Layouts from "@/components/Layouts";
 
 export default function productForm() {
-  const router = useRouter();
   const [openModal, setOpenModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [currentProduct, setCurrentProduct] = useState(null);
@@ -115,15 +114,11 @@ export default function productForm() {
         selectedFile,
         checkedToppingIds,
         setError,
-        router
       );
     } else {
       createProduct(data, selectedFile, checkedToppingIds, setError, reset);
     }
   };
-
-  // http://localhost:5000/api/products
-  // https://coffee-server-test.onrender.com/api/products
 
   return (
     <Layouts>

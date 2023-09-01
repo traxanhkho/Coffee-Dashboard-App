@@ -11,7 +11,7 @@ function RenderCity({ register, watch, errors }) {
 
   const getLocationData = async () => {
     try {
-      const { data } = await axios.get("http://localhost:5000/api/locationVn");
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_KEY}/locationVn`);
       setLocationData(data);
     } catch (error) {
       console.log("Error fetching data:", error);
