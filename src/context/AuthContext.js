@@ -30,8 +30,8 @@ function AuthProvider({ children }) {
     if (result?.error) {
       // Handle login error
       console.error(result.error);
-      setError('email', { message : 'Invalid Email or Password.'});
-    } 
+      setError("email", { message: "Invalid Email or Password." });
+    }
     // else {
     //   // Redirect to home page
     //   router.push("/");
@@ -76,7 +76,6 @@ function AuthProvider({ children }) {
     }
   };
 
- 
   const authContextValue = {
     currentUser,
     login,

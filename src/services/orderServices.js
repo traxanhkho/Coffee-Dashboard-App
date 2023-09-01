@@ -11,45 +11,73 @@ function orderUrl(id) {
   return `${apiEndpoint}/${id}`;
 }
 
-export async function getOrders() {
-  const { data } = await axios.get(apiEndpoint);
-  return data;
+export async function getOrders(options) {
+  const page = options?.page || 1;
+
+  try {
+    const { data } = await axios.get(`${apiEndpoint}?page=${page}`);
+
+    return data;
+  } catch (ex) {
+    console.error(ex);
+  }
 }
 
 export async function getOrder(productId) {
-  const { data } = await axios.get(orderUrl(productId));
-  return data;
+  try {
+    const { data } = await axios.get(orderUrl(productId));
+    return data;
+  } catch (ex) {
+    console.error(ex);
+  }
 }
 
-export async function updateOrderStatus(status , orderId) {
-  const orderStatus = { status }
-  const orderStatusSchema = Joi.string().valid(
-    "pending",
-    "processing",
-    "completed",
-    "cancelled"
-  );
+export async function updateOrderStatus(orderId, step) {
+  const statusList = [
+    { name: "ordered", label: "Đã đặt hàng", step: 0 },
+    { name: "pending", label: "Đang xử lý", step: 1 },
+    { name: "processing", label: "Đang vận chuyển", step: 2 },
+    { name: "completed", label: "Đã giao hàng", step: 4 },
+    { name: "cancelled", label: "Giao hàng thất bại", step: 5 },
+  ];
 
-  const { error } = orderStatusSchema.validate(orderStatus.status);
-  if (error) return console.error(error.details[0].message);
+  const status = statusList.find((status) => status.step === step);
+  if (!status) return console.error("Đã xảy ra lỗi");
+
+  const loading = toast.loading("Đang cập nhật trạng thái...", {
+    position: toast.POSITION.BOTTOM_LEFT,
+  });
 
   try {
     const { data } = await axios.put(
       `${apiEndpoint}/updateOrderStatus/${orderId}`,
-      orderStatus
+      { status: status }
     );
 
-    toast.success(
-      `Đã Cập nhật Trạng thái đơn ${data._id}!`,
-      {
-        position: toast.POSITION.TOP_RIGHT,
+    if (data) {
+      toast.update(loading, {
+        render: "Đã cập nhật trạng thái.",
+        type: "success",
+        isLoading: false,
+        position: toast.POSITION.BOTTOM_LEFT,
         autoClose: 2000,
         className: "custom-toast",
-      }
-    );
-
+        theme: "dark",
+        hideProgressBar: true,
+      });
+    }
     return data;
   } catch (error) {
+    toast.update(loading, {
+      render: "Đã xảy ra lỗi.",
+      type: "error",
+      isLoading: false,
+      position: toast.POSITION.BOTTOM_LEFT,
+      autoClose: 2000,
+      className: "custom-toast",
+      theme: "dark",
+      hideProgressBar: true,
+    });
     console.error(error);
   }
 }
@@ -66,18 +94,39 @@ export async function getTotalAmount(orderId) {
 }
 
 export async function deleteOrder(orderId) {
+  const loading = toast.loading("Đang xóa đơn hàng...", {
+    position: toast.POSITION.BOTTOM_LEFT,
+  });
+
   try {
     const { data } = await axios.delete(`${apiEndpoint}/${orderId}`);
 
-    toast.error(`Đã xóa đơn hàng ${data._id}!`, {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 2000,
-      className: "custom-toast",
-    });
+    if (data) {
+      toast.update(loading, {
+        render: "Đã xóa đơn hàng.",
+        type: "success",
+        isLoading: false,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: 2000,
+        className: "custom-toast",
+        theme: "dark",
+        hideProgressBar: true,
+      });
+    }
 
     return data;
     // Perform any additional operations or update state as needed
   } catch (error) {
+    toast.update(loading, {
+      render: "Đã xảy ra lỗi.",
+      type: "error",
+      isLoading: false,
+      position: toast.POSITION.BOTTOM_LEFT,
+      autoClose: 2000,
+      className: "custom-toast",
+      theme: "dark",
+      hideProgressBar: true,
+    });
     console.error("Error removing product:", error);
     // Handle the error or show a user-friendly message
   }

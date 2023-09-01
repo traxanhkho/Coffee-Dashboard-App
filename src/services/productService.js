@@ -1,6 +1,7 @@
 import { validateForm } from "@/utils/validateForm";
 import axios from "axios";
 import Joi from "joi";
+import _ from "lodash";
 import { toast } from "react-toastify";
 
 axios.defaults.baseURL = process.env.API_URL;
@@ -11,9 +12,26 @@ function productUrl(id) {
   return `${apiEndpoint}/${id}`;
 }
 
-export async function getProducts() {
-  const { data } = await axios.get(apiEndpoint);
-  return data;
+// const page = parseInt(req.query.page) - 1 || 0;
+// const limit = parseInt(req.query.limit) || 5;
+// const search = req.query.search || "";
+// let sort = req.query.sort || "name";createAt , name , price
+// let genre = req.query.genre || "all";
+
+export async function getProducts(options) {
+  const page = options?.page || 1;
+  const sort = options?.sort || "price";
+  const genre = options?.genre?.join(",") || "all";
+
+  try {
+    const { data } = await axios.get(
+      `${apiEndpoint}/list?page=${page}&sort=${sort}&genre=${genre}`
+    );
+
+    return data;
+  } catch (ex) {
+    console.error(ex);
+  }
 }
 
 export async function getProduct(productId) {
@@ -24,7 +42,7 @@ export async function getProduct(productId) {
 export async function createProduct(
   product,
   selectedFile,
-  selectedToppings,
+  checkedToppingIds,
   setError,
   reset
 ) {
@@ -37,18 +55,18 @@ export async function createProduct(
     sizes: [
       {
         name: "nhỏ",
-        price: product.priceSizeS,
+        price: product.priceSizeM,
       },
       {
         name: "vừa",
-        price: product.priceSizeM,
+        price: product.priceSizeL,
       },
       {
         name: "lớn",
         price: product.priceSizeXL,
       },
     ],
-    toppings: [...selectedToppings],
+    toppings: [...checkedToppingIds],
   };
 
   const productSchema = Joi.object({
@@ -90,17 +108,39 @@ export async function createProduct(
     }
   });
 
+  const loading = toast.loading("Đang tạo món mới...", {
+    position: toast.POSITION.BOTTOM_LEFT,
+  });
+
   try {
     const { data } = await axios.post(apiEndpoint, formData);
 
-    toast.success(`Đã thêm sản phẩm #${data._id}!`, {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 3000,
-      className: "custom-toast",
-    });
+    if (data) {
+      toast.update(loading, {
+        render: "Tạo sản phẩm mới thành công.",
+        type: "success",
+        isLoading: false,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: 2000,
+        className: "custom-toast",
+        theme: "dark",
+        hideProgressBar: true,
+      });
+    }
+
     reset();
     window.scrollTo(0, 0);
   } catch (error) {
+    toast.update(loading, {
+      render: "Đã xảy ra lỗi.",
+      type: "error",
+      isLoading: false,
+      position: toast.POSITION.BOTTOM_LEFT,
+      autoClose: 2000,
+      className: "custom-toast",
+      theme: "dark",
+      hideProgressBar: true,
+    });
     console.error(error);
   }
 }
@@ -109,10 +149,11 @@ export async function saveProduct(
   product,
   productId,
   selectedFile,
-  selectedToppings,
+  checkedToppingIds,
   setError,
   router
 ) {
+ 
   const productUpdated = {
     name: product.name,
     genre: product.genre,
@@ -121,19 +162,19 @@ export async function saveProduct(
     price: product.price,
     sizes: [
       {
-        name: "L",
+        name: "vừa",
         price: product.priceSizeL,
       },
       {
-        name: "M",
+        name: "nhỏ",
         price: product.priceSizeM,
       },
       {
-        name: "XL",
-        price: product.priceSizeL,
+        name: "lớn",
+        price: product.priceSizeXL,
       },
     ],
-    toppings: [...selectedToppings],
+    toppings: [...checkedToppingIds],
   };
 
   const productSchema = Joi.object({
@@ -172,33 +213,75 @@ export async function saveProduct(
     }
   });
 
+  const loading = toast.loading("Đang cập nhật thông tin...", {
+    position: toast.POSITION.BOTTOM_LEFT,
+  });
+
   try {
     const { data } = await axios.put(`${apiEndpoint}/${productId}`, formData);
-    router.push(apiEndpoint);
 
-    toast.success(`Sản phẩm #${data.name} đã cập nhật!`, {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 3000,
-      className: "custom-toast",
-    });
+    if (data) {
+      toast.update(loading, {
+        render: "Đã cập nhật thông tin thành công.",
+        type: "success",
+        isLoading: false,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: 2000,
+        className: "custom-toast",
+        theme: "dark",
+        hideProgressBar: true,
+      });
+    }
+    return data;
   } catch (error) {
+    toast.update(loading, {
+      render: "Đã xảy ra lỗi.",
+      type: "error",
+      isLoading: false,
+      position: toast.POSITION.BOTTOM_LEFT,
+      autoClose: 2000,
+      className: "custom-toast",
+      theme: "dark",
+      hideProgressBar: true,
+    });
     console.error(error);
   }
 }
 
 export async function deleteProduct(productId) {
+  const loading = toast.loading("Đang xóa sản phẩm...", {
+    position: toast.POSITION.BOTTOM_LEFT,
+  });
+
   try {
     const { data } = await axios.delete(`${apiEndpoint}/${productId}`);
 
-    toast.success(`Đã xóa sản phẩm ${data.name}!`, {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 3000,
-      className: "custom-toast",
-    });
+    if (data) {
+      toast.update(loading, {
+        render: "Đã xóa sản phẩm thành công.",
+        type: "success",
+        isLoading: false,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: 2000,
+        className: "custom-toast",
+        theme: "dark",
+        hideProgressBar: true,
+      });
+    }
 
     return data;
     // Perform any additional operations or update state as needed
   } catch (error) {
+    toast.update(loading, {
+      render: "Đã xảy ra lỗi.",
+      type: "error",
+      isLoading: false,
+      position: toast.POSITION.BOTTOM_LEFT,
+      autoClose: 2000,
+      className: "custom-toast",
+      theme: "dark",
+      hideProgressBar: true,
+    });
     console.error("Error removing product:", error);
     // Handle the error or show a user-friendly message
   }

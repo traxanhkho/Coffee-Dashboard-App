@@ -1,5 +1,8 @@
 'use client'
 import { AppProgressBar as ProgressBar } from 'next-nprogress-bar';
+import { ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
+
 
 const LoadingProgress = ({ children }) => {
   return (
@@ -11,6 +14,7 @@ const LoadingProgress = ({ children }) => {
         options={{ showSpinner: false }}
         shallowRouting
       />
+      <ToastContainer />
     </>
   );
 };

@@ -9,7 +9,11 @@ import ImageCicleUploader from "@/components/common/ImageCicleUploader.js";
 import { formatNumberInSeparateThousands } from "../../utils/formatNumberInSeparateThousands";
 import { useForm } from "react-hook-form";
 import { PhotoIcon } from "@heroicons/react/24/outline";
-import { deleteProduct, getProducts } from "@/services/productService";
+import {
+  deleteProduct,
+  getProductByCurrentPage,
+  getProducts,
+} from "@/services/productService";
 import {
   createGenre,
   deleteGenre,
@@ -18,12 +22,20 @@ import {
 } from "@/services/genreService";
 import Layouts from "@/components/Layouts";
 
+import { useProduct } from "@/context/ProductContext";
+import { useSearchParams } from "next/navigation";
+import Pagination from "@/components/common/Pagination";
+import { useRouter } from "next/navigation";
+
 export default function Products() {
+  const { productData, setProductData } = useProduct();
   const [products, setProducts] = useState([]);
   const [genreImage, setGenreImage] = useState(null);
   const [genreIdUpdate, setGenreIdUpdate] = useState(null);
   const [genres, setGenres] = useState([]);
   const [selectedGenreFile, setSelectedGenreFile] = useState(null);
+  const params = useSearchParams();
+  const router = useRouter();
 
   const {
     register,
@@ -34,20 +46,31 @@ export default function Products() {
     formState: { errors },
   } = useForm();
 
-  const getListProduct = async () => {
-    const products = await getProducts();
-    setProducts(products);
-  };
-
   const getListGenre = async () => {
-    const genres = await getGenres();
-    setGenres(genres);
+    try {
+      const genres = await getGenres();
+      setGenres(genres);
+    } catch (ex) {
+      console.error(ex);
+    }
   };
 
   useEffect(() => {
-    getListProduct();
     getListGenre();
   }, []);
+
+  useEffect(() => {
+    setProducts(productData.products);
+  }, [productData]);
+
+  const handlePaginatePage = async () => {
+    const data = await getProducts({ page: params.get("page") });
+    setProductData(data);
+  };
+
+  useEffect(() => {
+    handlePaginatePage();
+  }, [params]);
 
   const handleResetGenreForm = () => {
     reset();
@@ -57,7 +80,7 @@ export default function Products() {
 
   const handleDeleteProduct = (productId) => {
     setProducts(
-      products.map((item) =>
+      products?.map((item) =>
         item._id === productId ? { ...item, removing: true } : item
       )
     );
@@ -103,7 +126,7 @@ export default function Products() {
       path: "genre",
       label: "Phân loại",
       content: (product) => (
-        <div className="text-gray-900">{product.genre}</div>
+        <div className="text-gray-900">{product?.genre?.name}</div>
       ),
     },
     {
@@ -192,7 +215,7 @@ export default function Products() {
         handleResetGenreForm
       );
 
-      const listGenre = genres.map((genre) =>
+      const listGenre = genres?.map((genre) =>
         genre._id !== genreIdUpdate ? { ...genre } : { ...genreUpdated }
       );
 
@@ -228,6 +251,23 @@ export default function Products() {
     }, 500);
   };
 
+  const totalPages =
+    Math.ceil(productData.totalProduct / productData.limit) || 0;
+
+  const handleNextPage = () => {
+    const currentPage = parseInt(productData.page) + 1;
+    if (currentPage > totalPages) return;
+
+    router.push(`/products?page=${currentPage}`);
+  };
+
+  const handlePrevPage = () => {
+    const currentPage = parseInt(productData.page) - 1;
+    if (currentPage < 1) return;
+
+    router.push(`/products?page=${currentPage}`);
+  };
+
   return (
     <Layouts>
       <div className="px-4 sm:px-6 lg:px-8 mt-4">
@@ -257,9 +297,10 @@ export default function Products() {
                 {genreIdUpdate ? "Chỉnh sửa" : "Thêm"}
               </Btn>
             </form>
+            <h3 className="text-xs">*Lưu ý: click vào thẻ nhóm để cập nhật nhóm bạn nhé.</h3>
 
             <div>
-              {genres.map((genre) => (
+              {genres?.map((genre) => (
                 <div
                   key={genre._id}
                   className={`cursor-pointer transition-opacity duration-500 inline-flex mr-1 mt-1 items-center rounded-full bg-indigo-100 py-0.5 pl-2.5 pr-1 text-sm font-medium text-indigo-700 ${
@@ -305,9 +346,21 @@ export default function Products() {
             </Link>
           </div>
         </div>
-        <FilterProducts />
-        <div className="mt-8 flex flex-col">
-          <Table columns={columns} data={products} />
+        {/* <FilterProducts /> */}
+        <div className="mt-4 flex flex-col">
+          <div className="xs:-my-2 xs:-mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
+            <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                <Table columns={columns} data={products} />
+                <Pagination
+                  data={productData}
+                  handleNextPage={handleNextPage}
+                  handlePrevPage={handlePrevPage}
+                  totalPages={totalPages}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Layouts>

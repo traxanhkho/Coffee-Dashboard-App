@@ -1,34 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link.js";
-import FilterProducts from "@/components/FilterProducts.js";
-import Btn from "@/components/common/Btn.js";
 import Table from "@/components/common/Table/index.jsx";
-import { useForm } from "react-hook-form";
-import {
-  createCustomer,
-  deleteCustomer,
-  getCustomers,
-  saveCustomer,
-} from "@/services/customerService";
-import CustomerForm from "@/components/CustomerForm";
+import { getCustomers } from "@/services/customerService";
 import Layouts from "@/components/Layouts";
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import { Zoom, toast } from "react-toastify";
 
 export default function Customers() {
-  const [openCustomer, setOpenCustomer] = useState(false);
   const [customers, setCustomers] = useState([]);
-  const [customerIdUpdate, setCustomerIdUpdate] = useState(null);
-  const [customerImage, setCustomerImage] = useState(null);
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    watch,
-    setValue,
-    setError,
-  } = useForm();
 
   const handleGetDataFromServer = async () => {
     setCustomers(await getCustomers());
@@ -37,41 +16,6 @@ export default function Customers() {
   useEffect(() => {
     handleGetDataFromServer();
   }, []);
-
-  const handleDeleteCustomer = async (customerId) => {
-    setCustomers(
-      customers.map((customer) =>
-        customer._id === customerId ? { ...customer, removing: true } : customer
-      )
-    );
-    setTimeout(async () => {
-      const customerDeleted = await deleteCustomer(customerId);
-      if (customerDeleted)
-        setCustomers(
-          customers.filter((customer) => customer._id !== customerDeleted._id)
-        );
-    }, 500);
-  };
-
-  const handleUpdateCustomer = async (customer, customerId) => {
-    const customerUpdate = await saveCustomer(customer , customerId , setError);
-    const listCustomer = customers.map((customer) =>
-      customer._id !== customerId ? customer : { ...customerUpdate }
-    );
-    if (customerUpdate) {
-      setCustomerIdUpdate(null);
-      setCustomers(listCustomer);
-      setOpenCustomer(false);
-    }
-  };
-
-  const showCustomerUpdate = (customerUpdate) => {
-    setOpenCustomer(true);
-    setCustomerIdUpdate(customerUpdate._id);
-    setValue("name", customerUpdate.name);
-    setValue("street", customerUpdate.address.street);
-    setValue("numberPhone", customerUpdate.numberPhone);
-  };
 
   function getAddressCustomer(address) {
     let addressNames = [];
@@ -90,6 +34,25 @@ export default function Customers() {
     return addressNamesString;
   }
 
+  const handleRemoveCustomerData = () => {
+    const loading = toast.loading("Đang xóa dữ liệu...", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+
+    setTimeout(() => {
+      toast.update(loading, {
+        render: "Tài khoản không được cấp phép.",
+        type: "warning",
+        isLoading: false,
+        position: toast.POSITION.TOP_RIGHT,
+        autoClose: 2000,
+        className: "custom-toast",
+        theme: "dark",
+        hideProgressBar: true,
+      });
+    }, 1200);
+  };
+
   const columns = [
     {
       path: "name",
@@ -97,7 +60,9 @@ export default function Customers() {
       content: (customer) => (
         <div className="flex items-center">
           <div>
-            <div className="font-medium text-gray-900">{customer.name}</div>
+            <div className="font-medium text-gray-900">
+              {customer.name || "Chưa cập nhật"}
+            </div>
           </div>
         </div>
       ),
@@ -107,7 +72,8 @@ export default function Customers() {
       label: "Địa chỉ",
       content: (customer) => (
         <p className="max-w-[480px] truncate">
-          {getAddressCustomer(customer.address)}
+          {(customer.address && getAddressCustomer(customer.address)) ||
+            "Chưa cập nhật"}
         </p>
       ),
     },
@@ -115,35 +81,35 @@ export default function Customers() {
       path: "numberPhone",
       label: "Số điện thoại",
       content: (customer) => (
-        <a
-          href={`tel:${customer.numberPhone}`}
-          className="hover:text-orange-600"
-        >
-          {customer.numberPhone}
-        </a>
-      ),
-    },
-    {
-      key: "edit",
-      content: (customer) => (
-        <Link
-          href={{
-            pathname: "customers",
-            query: { customerId: customer._id },
+        <CopyToClipboard
+          // text={this.state.value}
+          text={customer.numberPhone}
+          className="hover:text-orange-600 cursor-pointer"
+          onCopy={() => {
+            toast.info("Đã copy số điện thoại.", {
+              position: "top-right",
+              autoClose: 1000,
+              transition: Zoom,
+              hideProgressBar: true,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+            });
           }}
-          onClick={() => showCustomerUpdate(customer)}
-          className="text-indigo-600 hover:text-indigo-900"
         >
-          Chỉnh sửa <span className="sr-only">, {customer.name}</span>
-        </Link>
+          <span>{customer.numberPhone}</span>
+        </CopyToClipboard>
       ),
     },
+
     {
       key: "remove",
       content: (customer) => (
         <button
           type="button"
-          onClick={() => handleDeleteCustomer(customer._id)}
+          onClick={() => handleRemoveCustomerData()}
           className="text-red-600 hover:text-red-800 border-none"
         >
           Xóa <span className="sr-only">, {customer.name}</span>
@@ -152,74 +118,27 @@ export default function Customers() {
     },
   ];
 
-  const handleCreateCustomer = async (customer) => {
-    const newCustomer = await createCustomer(customer, setError, () =>
-      setOpenCustomer(false)
-    );
-
-    const listCustomer = _.cloneDeep(customers);
-    listCustomer.push(newCustomer);
-    if (newCustomer) setCustomers(listCustomer);
-  };
-
-  const onSubmitFormCustomer = (data) => {
-    const customer = {
-      name: data.name,
-      numberPhone: data.numberPhone,
-      city: data.city,
-      district: data.district,
-      ward: data.ward,
-      street: data.street,
-    };
-
-    if (customerIdUpdate) {
-      handleUpdateCustomer(customer, customerIdUpdate);
-    } else {
-      handleCreateCustomer(customer);
-    }
-  };
-
   return (
     <Layouts>
-
-    <div className="px-4 sm:px-6 lg:px-8 mt-4">
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-xl font-semibold text-gray-900">
-            Danh sách khách hàng
-          </h1>
+      <div className="px-4 sm:px-6 lg:px-8 mt-4">
+        <div className="sm:flex sm:items-center">
+          <div className="sm:flex-auto">
+            <h1 className="text-xl font-semibold text-gray-900">
+              Danh sách khách hàng
+            </h1>
+          </div>
         </div>
-        <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Btn
-            size="sm"
-            onClick={() => {
-              setOpenCustomer(!openCustomer);
-              setCustomerIdUpdate(null);
-            }}
-          >
-            Thêm khách hàng
-          </Btn>
-
-          <CustomerForm
-            open={openCustomer}
-            setOpen={setOpenCustomer}
-            resetForm={reset}
-            onSubmit={handleSubmit(onSubmitFormCustomer)}
-            register={register}
-            errors={errors}
-            image={customerImage}
-            watch={watch}
-            setImage={setCustomerImage}
-            idUpdate={customerIdUpdate}
-          />
+        <div className="mt-8 flex flex-col">
+          <div className="xs:-my-2 xs:-mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
+            <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                <Table columns={columns} data={customers} />
+                {/* <Pagination /> */}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <FilterProducts />
-      <div className="mt-8 flex flex-col">
-        <Table columns={columns} data={customers} />
-      </div>
-    </div>
     </Layouts>
-
   );
 }

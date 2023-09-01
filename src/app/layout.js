@@ -1,10 +1,12 @@
 import "./globals.css";
-import "react-toastify/dist/ReactToastify.css";
 import { Inter } from "next/font/google";
 import AuthProvider from "@/context/AuthContext";
 import NextAuthProvider from "@/components/NextAuthProvider";
 import LayoutProvider from "@/context/LayoutContext";
 import LoadingProgress from "@/components/LoadingProgress";
+import DataProvider from "@/context/DataContext";
+import "react-toastify/dist/ReactToastify.css";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -18,9 +20,11 @@ export default function RootLayout({ children }) {
       <body className={inter.className} suppressHydrationWarning={true}>
         <NextAuthProvider>
           <AuthProvider>
-            <LayoutProvider>
-              <LoadingProgress>{children}</LoadingProgress>
-            </LayoutProvider>
+            <DataProvider>
+              <LayoutProvider>
+                <LoadingProgress>{children}</LoadingProgress>
+              </LayoutProvider>
+            </DataProvider>
           </AuthProvider>
         </NextAuthProvider>
       </body>

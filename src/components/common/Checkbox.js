@@ -1,50 +1,42 @@
-import { formatNumberInSeparateThousands } from "@/utils/formatNumberInSeparateThousands";
+import { useEffect } from "react";
 
-export default function Checkbox({ toppings, register , selectedToppings , setSelectedToppings }) {
+export default function Checkbox({ toppings, setToppings }) {
+  const handleChange = (e) => {
+    const { value, checked } = e.target;
 
-  const handleCheckboxChange = (event) => {
-    const { value, checked } = event.target;
-    const topping = JSON.parse(value);
-    if (checked) {
-      setSelectedToppings([...selectedToppings, topping.id]);
-    } else {
-      const updatedToppings = selectedToppings.filter(
-        (item) => item !== topping.id
-      );
-      setSelectedToppings(updatedToppings);
-    }
+    const toppingUpdate = toppings.map((topping) => {
+      return topping._id === value
+        ? { ...topping, isChecked: checked }
+        : { ...topping };
+    });
+    setToppings(toppingUpdate);
   };
 
-
   return (
-    <>
-      {toppings.map((topping) => (
-        <div key={topping._id} className="relative flex items-start">
-          <div className="flex h-5 items-center">
-            <input
-              {...register(`${topping._id}`)}
-              id={`${topping._id}`}
-              aria-describedby="topping-description"
-              name={`${topping._id}`}
-              type="checkbox"
-              value={JSON.stringify({ id: topping._id })}
-              onChange={handleCheckboxChange}
-              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-            />
-          </div>
-          <div className="ml-3 text-sm">
+    <div className="space-y-2">
+      <div className="relative">
+        {toppings?.map((topping) => (
+          <div key={topping._id} className=" sm:py-2 border-b ">
             <label
-              htmlFor={`${topping._id}`}
-              className="font-medium text-gray-700"
+              htmlFor={topping._id}
+              className="font-medium hover:border-orange-200 cursor-pointer flex items-center px-2 py-1 border-2 border-gray-200 text-gray-700"
             >
-              {topping.name}
+              <div className="flex h-5 items-center">
+                <input
+                  id={topping._id}
+                  name={topping._id}
+                  value={topping._id}
+                  onChange={handleChange}
+                  checked={topping.isChecked || false}
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-200 ring-0"
+                />
+              </div>
+              <div className="ml-3 text-sm">{topping.name}</div>
             </label>
-            <p id="topping-price" className="text-gray-500">
-              {`${formatNumberInSeparateThousands(topping.price)} đ`}
-            </p>
           </div>
-        </div>
-      ))}
-    </>
+        ))}
+      </div>
+    </div>
   );
 }

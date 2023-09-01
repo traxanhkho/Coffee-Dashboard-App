@@ -12,10 +12,13 @@ import CandyCaneSolid from "@/assets/icons/candy-cane-solid.svg";
 import IconsSolid from "@/assets/icons/icons-solid.svg";
 import AddressCardRegular from "@/assets/icons/address-card-regular.svg";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import axios from "axios";
 
 const LayoutContext = createContext();
 
 function LayoutProvider({ children }) {
+  const { data: session } = useSession();
   const [navigation, setNavigation] = useState([
     { name: "Tổng quan", href: "/", icon: ChartPieIcon, current: false },
     {
@@ -46,16 +49,9 @@ function LayoutProvider({ children }) {
       icon: UsersIcon,
       current: false,
     },
+
     {
-      name: "Giao Diện",
-      href: "/interfaces",
-      icon: () => (
-        <IconsSolid className="mr-4 h-6 w-6 fill-current flex-shrink-0 text-indigo-300" />
-      ),
-      current: false,
-    },
-    {
-      name: "Nhân Viên",
+      name: "Nhân Sự",
       href: "/users",
       icon: () => (
         <PeopleRoofSolid className="mr-4 h-6 w-6 fill-current flex-shrink-0 text-indigo-300" />
@@ -70,9 +66,35 @@ function LayoutProvider({ children }) {
       ),
       current: false,
     },
-    
   ]);
+  const [profile, setProfile] = useState(null);
   const pathname = usePathname();
+  const imageDemo =
+    "https://png.pngtree.com/png-vector/20220611/ourmid/pngtree-person-gray-photo-placeholder-woman-in-shirt-on-gray-background-png-image_4826227.png";
+
+  const getDataFromServer = async () => {
+    if (!session) return;
+    const { data: profileSelected } = await axios.get(
+      "http://localhost:5000/api/profiles/me",
+      {
+        headers: {
+          "x-auth-token": session?.token,
+        },
+      }
+    );
+
+    if (profileSelected) {
+      let userInfo = _.pick(profileSelected, [
+        "userId",
+        "aboutMe",
+        "address",
+        "numberPhone",
+        "position",
+        "image",
+      ]);
+      return setProfile(userInfo);
+    }
+  };
 
   useEffect(() => {
     const currentPath = "/" + pathname.split("/")[1];
@@ -84,7 +106,9 @@ function LayoutProvider({ children }) {
     );
 
     setNavigation(navUpdated);
-  }, [pathname]);
+
+    getDataFromServer();
+  }, [pathname, session]);
 
   const onChangeNavigation = (name) => {
     const newNavigation = navigation.map((item) =>
@@ -99,6 +123,8 @@ function LayoutProvider({ children }) {
   const layoutContextValue = {
     onChangeNavigation,
     navigation,
+    profile,
+    imageDemo,
   };
 
   return (

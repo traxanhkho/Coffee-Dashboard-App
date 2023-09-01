@@ -6,11 +6,10 @@ import {
   Bars3Icon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import CustomToastContainer from "./common/CustomToastContainer";
 import Link from "next/link";
 import { useLayout } from "@/context/LayoutContext";
-import { useAuth } from "@/context/AuthContext";
 import { signOut } from "next-auth/react";
+import { toast } from "react-toastify";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -18,13 +17,19 @@ function classNames(...classes) {
 
 export default function Slidebar({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { onChangeNavigation, navigation } = useLayout();
-  const { currentUser } = useAuth();
+  const { onChangeNavigation, navigation, profile, imageDemo } = useLayout();
+
+  const handleSignOut = () => {
+    toast.loading("Đang thực hiện đăng xuất...", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+
+    signOut();
+  };
 
   return (
     <>
       <div>
-        <CustomToastContainer />
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
             as="div"
@@ -117,13 +122,13 @@ export default function Slidebar({ children }) {
                         <div>
                           <img
                             className="inline-block h-10 w-10 rounded-full"
-                            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                            alt=""
+                            src={profile?.image?.url || imageDemo}
+                            alt="user avatar"
                           />
                         </div>
                         <div className="ml-3">
                           <p className="text-base font-medium text-white truncate max-w-[120px]">
-                            {currentUser?.name}
+                            {profile?.userId?.name}
                           </p>
                           <p className="text-sm font-medium text-indigo-200 group-hover:text-white">
                             Xem thông tin
@@ -133,7 +138,7 @@ export default function Slidebar({ children }) {
                     </Link>
                     <div className="ml-auto">
                       <button
-                        onClick={() => signOut()}
+                        onClick={() => handleSignOut()}
                         className="text-white hover:text-orange-400 transition"
                       >
                         <ArrowLeftOnRectangleIcon className="w-6 h-6" />
@@ -194,13 +199,13 @@ export default function Slidebar({ children }) {
                   <div>
                     <img
                       className="inline-block h-9 w-9 rounded-full"
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      alt=""
+                      src={profile?.image?.url || imageDemo}
+                      alt="user avatar"
                     />
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-white truncate max-w-[120px]">
-                      {currentUser?.name}
+                    <p className="text-sm font-medium capitalize text-white truncate max-w-[120px]">
+                      {profile?.userId?.name}
                     </p>
                     <p className="text-xs font-medium text-indigo-200 group-hover:text-white">
                       Xem thông tin

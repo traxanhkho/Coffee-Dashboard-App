@@ -1,7 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link.js";
-import FilterProducts from "@/components/FilterProducts.js";
 import Btn from "@/components/common/Btn.js";
 import Table from "@/components/common/Table/index.jsx";
 import { formatNumberInSeparateThousands } from "../../utils/formatNumberInSeparateThousands";
@@ -15,13 +14,19 @@ import {
 } from "@/services/toppingService";
 import ToppingForm from "@/components/ToppingForm";
 import Layouts from "@/components/Layouts";
+import { useTopping } from "@/context/ToppingContext";
+import { useRouter, useSearchParams } from "next/navigation";
+import Pagination from "@/components/common/Pagination";
 
 export default function Toppings() {
-  const [openTopping, setOpenTopping] = useState(false);
+  const { toppingData, setToppingData } = useTopping();
   const [toppings, setToppings] = useState([]);
+  const [openTopping, setOpenTopping] = useState(false);
   const [toppingIdUpdate, setToppingIdUpdate] = useState(null);
   const [toppingImage, setToppingImage] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
+  const params = useSearchParams();
+  const router = useRouter();
 
   const {
     register,
@@ -32,13 +37,18 @@ export default function Toppings() {
     setError,
   } = useForm();
 
-  const handleGetDataFromServer = async () => {
-    setToppings(await getToppings());
+  const handlePaginatePage = async () => {
+    const data = await getToppings({ page: params.get("page") });
+    setToppingData(data);
   };
 
   useEffect(() => {
-    handleGetDataFromServer();
-  }, []);
+    setToppings(toppingData.toppings);
+  }, [toppingData]);
+
+  useEffect(() => {
+    handlePaginatePage();
+  }, [params]);
 
   const handleDeleteTopping = async (toppingId) => {
     setToppings(
@@ -120,6 +130,11 @@ export default function Toppings() {
       ),
     },
     {
+      path: "quantity",
+      label: "Số lượng",
+      content: () => <p>32</p>,
+    },
+    {
       key: "edit",
       content: (topping) => (
         <Link
@@ -172,6 +187,25 @@ export default function Toppings() {
     }
   };
 
+  //////
+
+  const totalPages = Math.ceil(toppingData.total / toppingData.limit) || 0;
+
+  const handleNextPage = () => {
+    const currentPage = parseInt(toppingData.page) + 1;
+    if (currentPage > totalPages) return;
+
+    router.push(`/toppings?page=${currentPage}`);
+  };
+
+  const handlePrevPage = () => {
+    const currentPage = parseInt(toppingData.page) - 1;
+    if (currentPage < 1) return;
+
+    router.push(`/toppings?page=${currentPage}`);
+  };
+
+  ///////
   return (
     <Layouts>
       <div className="px-4 sm:px-6 lg:px-8 mt-4">
@@ -206,9 +240,21 @@ export default function Toppings() {
             />
           </div>
         </div>
-        <FilterProducts />
         <div className="mt-8 flex flex-col">
-          <Table columns={columns} data={toppings} />
+          <div className="xs:-my-2 xs:-mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
+            <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                <Table columns={columns} data={toppings} />
+
+                <Pagination
+                  data={toppingData}
+                  handleNextPage={handleNextPage}
+                  handlePrevPage={handlePrevPage}
+                  totalPages={totalPages}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Layouts>

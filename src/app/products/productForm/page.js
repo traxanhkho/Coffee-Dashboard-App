@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import _ from "lodash";
 import Btn from "@/components/common/Btn";
 import Checkbox from "@/components/common/Checkbox";
@@ -25,14 +25,17 @@ export default function productForm() {
   const router = useRouter();
   const [openModal, setOpenModal] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [selectedToppings, setSelectedToppings] = useState([]);
+  const [currentProduct, setCurrentProduct] = useState(null);
   const [genres, setGenres] = useState([]);
   const [toppings, setToppings] = useState([]);
   const [image, setImage] = useState(null);
-  const [productIdQuery, setProductIdQuery] = useState(
-    useSearchParams().get("productId")
-  );
+  const productIdQuery = useSearchParams().get("productId");
 
+  const methods = useForm({
+    defaultValues: {
+      toppings: [],
+    },
+  });
   const {
     register,
     handleSubmit,
@@ -40,67 +43,82 @@ export default function productForm() {
     reset,
     setValue,
     formState: { errors },
-  } = useForm();
+  } = methods;
 
-  const setValueForm = (currentProduct) => {
-    setValue("name", currentProduct.name);
-    setValue("description", currentProduct.description);
-    setValue("genre", currentProduct.genre);
-    setValue("price", currentProduct.price);
-    setValue("numberInStock", currentProduct.numberInStock);
-    if (currentProduct.image) setImage(currentProduct.image.url);
-
+  const setValueForm = (productSelected) => {
+    setValue("name", productSelected.name);
+    setValue("description", productSelected.description);
+    setValue("genre", productSelected.genre);
+    setValue("price", productSelected.price);
+    setValue("numberInStock", productSelected.numberInStock);
+    if (productSelected.image) setImage(productSelected.image.url);
     // set value price size
 
-    currentProduct.sizes.forEach((size) => {
+    productSelected.sizes.forEach((size) => {
       switch (size.name) {
-        case "M":
+        case "nhỏ":
           setValue("priceSizeM", size.price);
           break;
-        case "L":
+        case "vừa":
           setValue("priceSizeL", size.price);
           break;
-        case "XL":
+        case "lớn":
           setValue("priceSizeXL", size.price);
           break;
       }
     });
 
-    // set value toppings
-    currentProduct.toppings.map((topping) => setValue(topping, true));
+    let toppingsToUpdate = _.cloneDeep(toppings);
+
+    productSelected.toppings.forEach((item) => {
+      const indexToUpdate = _.findIndex(toppingsToUpdate, { _id: item._id });
+      if (indexToUpdate !== -1) {
+        toppingsToUpdate[indexToUpdate].isChecked = true;
+      }
+    });
+
+    setToppings(toppingsToUpdate);
   };
 
   const getDataFromServer = async () => {
-    const listGenre = await getGenres();
-    const listTopping = await getToppings();
-
-    setGenres(listGenre);
-    setToppings(listTopping);
-  };
-
-  const handleCurrentProduct = async (productId) => {
-    const currentProduct = await getProduct(productId);
-    setValueForm(currentProduct);
+    try {
+      setGenres(await getGenres());
+      const data = await getToppings();
+      if (productIdQuery) {
+        const currentProduct = await getProduct(productIdQuery);
+        setCurrentProduct(currentProduct);
+      }
+      setToppings(data?.allToppings);
+    } catch (ex) {
+      console.error(ex);
+    }
   };
 
   useEffect(() => {
     getDataFromServer();
-
-    if (productIdQuery) handleCurrentProduct(productIdQuery);
   }, []);
 
+  useEffect(() => {
+    if (currentProduct) setValueForm(currentProduct);
+  }, [currentProduct]);
+
   const onSubmit = (data) => {
-    if (productIdQuery)
+    let checkedToppingIds = _.chain(toppings)
+      .filter({ isChecked: true })
+      .map("_id")
+      .value();
+
+    if (productIdQuery) {
       saveProduct(
         data,
         productIdQuery,
         selectedFile,
-        selectedToppings,
+        checkedToppingIds,
         setError,
         router
       );
-    else {
-      createProduct(data, selectedFile, selectedToppings, setError, reset);
+    } else {
+      createProduct(data, selectedFile, checkedToppingIds, setError, reset);
     }
   };
 
@@ -128,121 +146,120 @@ export default function productForm() {
               onSubmit={handleSubmit(onSubmit)}
               encType="multipart/form-data"
             >
-              <div className="shadow sm:overflow-hidden sm:rounded-md">
-                <div className="space-y-6 bg-white px-4 py-5 sm:p-6">
-                  <Input
-                    register={register}
-                    name="name"
-                    errors={errors}
-                    label="Tên sản phẩm"
-                    placeholder={"Nhập tên sản phẩm"}
-                  />
-                  <Textarea
-                    register={register}
-                    label="Mô tả sản phẩm"
-                    name="description"
-                    errors={errors}
-                    rows={3}
-                    placeholder="Nhập mô tả sản phẩm"
-                    defaultValue=""
-                  />
-                  <SelectMenu
-                    register={register}
-                    label="Loại sản phẩm"
-                    name="genre"
-                    items={genres}
-                  />
-                  <Input
-                    register={register}
-                    name="price"
-                    type="number"
-                    isPriceField={true}
-                    min={0}
-                    defaultValue={0}
-                    errors={errors}
-                    label="Giá gốc sản phẩm"
-                    placeholder={"Nhập giá gốc của sản phẩm"}
-                  />
-                  <Input
-                    register={register}
-                    name="numberInStock"
-                    type="number"
-                    isPriceField={true}
-                    min={0}
-                    defaultValue={0}
-                    errors={errors}
-                    label="Số lượng sản phẩm"
-                    placeholder={"Nhập số lượng sản phẩm"}
-                  />
-                  <div className="grid grid-cols-3 gap-4">
+              <FormProvider {...methods}>
+                <div className="shadow sm:overflow-hidden sm:rounded-md">
+                  <div className="space-y-6 bg-white px-4 py-5 sm:p-6">
                     <Input
                       register={register}
-                      name="priceSizeS"
-                      type="number"
-                      isPriceField={true}
-                      min={0}
-                      defaultValue={0}
+                      name="name"
                       errors={errors}
-                      label="Giá size nhỏ"
-                      placeholder={"Nhập giá size nhỏ"}
+                      label="Tên sản phẩm"
+                      placeholder={"Nhập tên sản phẩm"}
+                    />
+                    <Textarea
+                      register={register}
+                      label="Mô tả sản phẩm"
+                      name="description"
+                      errors={errors}
+                      rows={3}
+                      placeholder="Nhập mô tả sản phẩm"
+                      defaultValue=""
+                    />
+                    <SelectMenu
+                      register={register}
+                      label="Loại sản phẩm"
+                      name="genre"
+                      items={genres}
                     />
                     <Input
                       register={register}
-                      name="priceSizeM"
+                      name="price"
                       type="number"
                       isPriceField={true}
                       min={0}
                       defaultValue={0}
                       errors={errors}
-                      label="Giá size vừa"
-                      placeholder={"Nhập giá size vừa"}
+                      label="Giá gốc sản phẩm"
+                      placeholder={"Nhập giá gốc của sản phẩm"}
                     />
                     <Input
                       register={register}
-                      name="priceSizeXL"
+                      name="numberInStock"
                       type="number"
-                      isPriceField={true}
                       min={0}
                       defaultValue={0}
                       errors={errors}
-                      label="Giá size lớn"
-                      placeholder={"Nhập giá size lớn"}
+                      label="Số lượng sản phẩm"
+                      placeholder={"Nhập số lượng sản phẩm"}
+                    />
+                    <div className="grid grid-cols-3 gap-4">
+                      <Input
+                        register={register}
+                        name="priceSizeM"
+                        type="number"
+                        isPriceField={true}
+                        min={0}
+                        defaultValue={0}
+                        errors={errors}
+                        label="Giá size nhỏ"
+                        placeholder={"Nhập giá size nhỏ"}
+                      />
+                      <Input
+                        register={register}
+                        name="priceSizeL"
+                        type="number"
+                        isPriceField={true}
+                        min={0}
+                        defaultValue={0}
+                        errors={errors}
+                        label="Giá size vừa"
+                        placeholder={"Nhập giá size vừa"}
+                      />
+                      <Input
+                        register={register}
+                        name="priceSizeXL"
+                        type="number"
+                        isPriceField={true}
+                        min={0}
+                        defaultValue={0}
+                        errors={errors}
+                        label="Giá size lớn"
+                        placeholder={"Nhập giá size lớn"}
+                      />
+                    </div>
+
+                    <Btn size="md" onClick={() => setOpenModal(!openModal)}>
+                      Thêm Toppings
+                    </Btn>
+                    <Modal
+                      open={openModal}
+                      title="Vui lòng chọn toppings"
+                      setOpen={setOpenModal}
+                    >
+                      <Checkbox
+                        toppings={toppings}
+                        setToppings={setToppings}
+                        currentProduct={currentProduct}
+                      />
+                      {/* <FieldArray /> */}
+                    </Modal>
+                    <ImageProductUploader
+                      register={register}
+                      setSelectedFile={setSelectedFile}
+                      image={image}
+                      setImage={setImage}
                     />
                   </div>
-
-                  <Btn size="md" onClick={() => setOpenModal(!openModal)}>
-                    Thêm Toppings
-                  </Btn>
-                  <Modal
-                    open={openModal}
-                    title="Vui lòng chọn toppings"
-                    setOpen={setOpenModal}
-                  >
-                    <Checkbox
-                      register={register}
-                      toppings={toppings}
-                      selectedToppings={selectedToppings}
-                      setSelectedToppings={setSelectedToppings}
-                    />
-
-                    {/* <ToppingTag register={register} name="toppings" /> */}
-                  </Modal>
-                  <ImageProductUploader
-                    register={register}
-                    setSelectedFile={setSelectedFile}
-                    image={image}
-                    setImage={setImage}
-                  />
+                  <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
+                    <button
+                      type="submit"
+                      className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                      Lưu sản phẩm
+                    </button>
+                  </div>
                 </div>
-                <div className="bg-gray-50 px-4 py-3 text-right sm:px-6">
-                  <button
-                    type="submit"
-                    className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                  >
-                    Lưu sản phẩm
-                  </button>
-                </div>
-              </div>
+              </FormProvider>
             </form>
           </div>
         </div>

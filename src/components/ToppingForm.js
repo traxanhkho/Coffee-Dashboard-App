@@ -34,6 +34,9 @@ function ToppingForm({
       setOpen={setOpenTopping}
       buttonSave={false}
     >
+      <div className="max-w-2xl">
+
+      
       <form className="mt-4 flex-column space-y-4" onSubmit={onSubmit}>
         <Input
           register={register}
@@ -63,7 +66,7 @@ function ToppingForm({
         <Btn size="sm" type="submit" className="w-full justify-center">
           {toppingIdUpdate ? "Lưu Topping" : "Thêm Topping"}
         </Btn>
-      </form>
+      </form></div>
     </Modal>
   );
 }

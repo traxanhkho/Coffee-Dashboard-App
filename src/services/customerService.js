@@ -66,7 +66,7 @@ export async function createCustomer(customer, setError, closeModal) {
   }
 }
 
-export async function saveCustomer(customer,customerId ,  setError) {
+export async function saveCustomer(customer, customerId, setError) {
   const validationErrors = await validateForm(
     customerSchema,
     customer,
@@ -88,10 +88,7 @@ export async function saveCustomer(customer,customerId ,  setError) {
   };
 
   try {
-    const { data } = await axios.put(
-      customerUrl(customerId),
-      customerUpdated
-    );
+    const { data } = await axios.put(customerUrl(customerId), customerUpdated);
 
     toast.success(`Đã cập nhật thông tin #${data.name}`, {
       position: toast.POSITION.TOP_RIGHT,

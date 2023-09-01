@@ -45,40 +45,85 @@ export async function createGenre(
 
   formData.append("name", newGenre.genre);
 
+  const loading = toast.loading("Đang tạo nhóm mới...", {
+    position: toast.POSITION.BOTTOM_LEFT,
+  });
+
   try {
     const { data } = await axios.post(apiEndpoint, formData);
 
-    toast.success(`Đã thêm nhóm #${data.name}!`, {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 3000,
-      className: "custom-toast",
-    });
+    if (data) {
+      toast.update(loading, {
+        render: "Tạo nhóm mới thành công.",
+        type: "success",
+        isLoading: false,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: 1200,
+        className: "custom-toast",
+        theme: "dark",
+        hideProgressBar: true,
+      });
+    }
     handleResetGenreForm();
     return data;
   } catch (error) {
+    toast.update(loading, {
+      render: "Đã xảy ra lỗi.",
+      type: "error",
+      isLoading: false,
+      position: toast.POSITION.BOTTOM_LEFT,
+      autoClose: 1200,
+      className: "custom-toast",
+      theme: "dark",
+      hideProgressBar: true,
+    });
     console.error(error);
   }
 }
 
 export async function deleteGenre(genreId) {
+
+  const loading = toast.loading("Đang xóa nhóm...", {
+    position: toast.POSITION.BOTTOM_LEFT,
+  });
+
   try {
     const { data } = await axios.delete(`${apiEndpoint}/${genreId}`);
 
-    toast.success(`Đã xóa nhóm ${data.name}!`, {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 3000,
-      className: "custom-style",
-    });
+    if (data) {
+      toast.update(loading, {
+        render: "Đã xóa nhóm thành công.",
+        type: "success",
+        isLoading: false,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: 1200,
+        className: "custom-toast",
+        theme: "dark",
+        hideProgressBar: true,
+      });
+    }
 
     return data;
   } catch (error) {
+    if (data) {
+      toast.update(loading, {
+        render: "Đã xảy ra lỗi.",
+        type: "error",
+        isLoading: false,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: 1200,
+        className: "custom-toast",
+        theme: "dark",
+        hideProgressBar: true,
+      });
+    }
     console.error(error);
   }
 }
 
 export async function saveGenre(
   data,
-  genreId , 
+  genreId,
   selectedGenreFile,
   setError,
   handleResetGenreForm
@@ -105,17 +150,39 @@ export async function saveGenre(
 
   formData.append("name", genreUpdated.genre);
 
+  const loading = toast.loading("Đang cập nhật thông tin.", {
+    position: toast.POSITION.BOTTOM_LEFT,
+  });
+
   try {
     const { data } = await axios.put(`${apiEndpoint}/${genreId}`, formData);
 
-    toast.success(`Đã cập nhật nhóm #${data.name}!`, {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 2000,
-      className: "custom-toast",
-    });
+    if (data) {
+      toast.update(loading, {
+        render: "Cập nhật thành công.",
+        type: "success",
+        isLoading: false,
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: 1200,
+        className: "custom-toast",
+        theme: "dark",
+        hideProgressBar: true,
+      });
+    }
+
     handleResetGenreForm();
     return data;
   } catch (error) {
+    toast.update(loading, {
+      render: "Đã xảy ra lỗi.",
+      type: "error",
+      isLoading: false,
+      position: toast.POSITION.BOTTOM_LEFT,
+      autoClose: 1200,
+      className: "custom-toast",
+      theme: "dark",
+      hideProgressBar: true,
+    });
     console.error(error);
   }
 }

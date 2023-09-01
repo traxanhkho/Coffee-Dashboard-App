@@ -4,7 +4,7 @@ import Link from "next/link.js";
 import FilterProducts from "@/components/FilterProducts.js";
 import Btn from "@/components/common/Btn.js";
 import Table from "@/components/common/Table/index.jsx";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import {
   deleteOrder,
   getOrders,
@@ -18,33 +18,35 @@ export default function Orders() {
   const [open, setOpen] = useState(false);
   const [orders, setOrders] = useState([]);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [status, setStatus] = useState([
-    {
-      value: "pending",
-      name: "Chờ xử lý",
-      selected: true,
-    },
-    {
-      value: "processing",
-      name: "Đang xử lý",
-      selected: false,
-    },
-    {
-      value: "completed",
-      name: "Đã hoàn thành",
-      selected: false,
-    },
-    {
-      value: "cancelled",
-      name: "Đã hủy đơn",
-      selected: false,
-    },
-  ]);
+  // const [status, setStatus] = useState([
+  //   {
+  //     value: "pending",
+  //     name: "Chờ xử lý",
+  //     selected: true,
+  //   },
+  //   {
+  //     value: "processing",
+  //     name: "Đang xử lý",
+  //     selected: false,
+  //   },
+  //   {
+  //     value: "completed",
+  //     name: "Đã hoàn thành",
+  //     selected: false,
+  //   },
+  //   {
+  //     value: "cancelled",
+  //     name: "Đã hủy đơn",
+  //     selected: false,
+  //   },
+  // ]);
 
-  const { register, handleSubmit, reset } = useForm();
+  const methods = useForm();
 
   const handleGetDataFromServer = async () => {
-    setOrders(await getOrders());
+    const { orders } = await getOrders();
+    console.log(orders);
+    setOrders(orders);
   };
 
   useEffect(() => {
@@ -98,6 +100,7 @@ export default function Orders() {
 
   // Function to retrieve topping names
   const getToppingNames = (data) => {
+    if (!data) return "";
     let toppingNames = [];
 
     // Iterate over the products
@@ -109,7 +112,7 @@ export default function Orders() {
         let topping = product.toppings[j];
 
         // Add the topping name to the toppingNames array
-        toppingNames.push(topping.toppingId.name);
+        toppingNames.push(topping.toppingId?.name);
       }
     }
 
@@ -136,28 +139,34 @@ export default function Orders() {
   };
 
   const getStatusName = (status) => {
-    switch (status) {
-      case "pending":
+    switch (status.step) {
+      case 0:
         return (
-          <p className="px-2 font-medium  rounded-3xl text-center text-yellow-800 bg-yellow-400">
-            Chờ xử lý
+          <p className="px-2.5 py-0.5 rounded-full text-xs font-medium capitalize  text-center text-blue-400 bg-blue-200">
+            Đã đặt hàng
           </p>
         );
-      case "processing":
+      case 1:
         return (
-          <p className="px-2 font-medium  rounded-3xl text-center text-blue-800 bg-blue-400">
+          <p className="px-2.5 py-0.5 rounded-full text-xs font-medium capitalize   text-center text-yellow-800 bg-yellow-400">
             Đang xử lý
           </p>
         );
-      case "completed":
+      case 2:
         return (
-          <p className="px-2 font-medium  rounded-3xl text-center text-green-800 bg-green-400">
+          <p className="px-2.5 py-0.5 rounded-full text-xs font-medium capitalize   text-center text-blue-800 bg-blue-400">
+            Đang vận chuyển
+          </p>
+        );
+      case 4:
+        return (
+          <p className="px-2.5 py-0.5 rounded-full text-xs font-medium capitalize   text-center text-green-800 bg-green-400">
             Đã hoàn thành
           </p>
         );
-      case "cancelled":
+      case 5:
         return (
-          <p className="px-2 font-medium  rounded-3xl text-center text-red-800 bg-red-400">
+          <p className="px-2.5 py-0.5 rounded-full text-xs font-medium capitalize  text-center text-red-800 bg-red-400">
             Đã hủy đơn
           </p>
         );
@@ -171,13 +180,15 @@ export default function Orders() {
       path: "name",
       label: "Khách hàng",
       content: (order) => (
-        <div className="flex items-center">
+        <div className="flex items-center ">
           <div>
             <div className="font-medium max-w-[240px] truncate text-gray-900">
-              {order.customerId.name}
+              {order.orderShippingAddressInformation.name}
             </div>
             <div className="text-gray-500 max-w-[240px] truncate">
-              {getAddressCustomer(order.customerId.address)}
+              {getAddressCustomer(
+                order.orderShippingAddressInformation.address
+              )}
             </div>
           </div>
         </div>
@@ -214,7 +225,7 @@ export default function Orders() {
       content: (order) => (
         <button
           onClick={() => {
-            setSelectedOrder(order);
+            setSelectedOrder(order._id);
             setOpen(true);
           }}
           className="text-indigo-600 hover:text-indigo-900"
@@ -262,20 +273,30 @@ export default function Orders() {
             </h1>
           </div>
           <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-            <OrderForm
-              open={open}
-              setOpen={setOpen}
-              resetForm={reset}
-              status={status}
-              onSubmit={handleSubmit(onSubmitFormOrder)}
-              selectedOrder={selectedOrder}
-              register={register}
-            />
+            <FormProvider {...methods}>
+              <OrderForm
+                open={open}
+                setOpen={setOpen}
+                setOrders={setOrders}
+                orders={orders}
+                onSubmit={onSubmitFormOrder}
+                selectedOrder={selectedOrder}
+                setSelectedOrder={setSelectedOrder}
+              />
+            </FormProvider>
           </div>
         </div>
-        <FilterProducts />
+
         <div className="mt-8 flex flex-col">
-          <Table columns={columns} data={orders} />
+          <div className="xs:-my-2 xs:-mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8 ">
+            <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+              <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                <Table columns={columns} data={orders} />
+
+                {/* <Pagination /> */}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Layouts>
