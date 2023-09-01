@@ -45,7 +45,6 @@ export default function Orders() {
 
   const handleGetDataFromServer = async () => {
     const { orders } = await getOrders();
-    console.log(orders);
     setOrders(orders);
   };
 
