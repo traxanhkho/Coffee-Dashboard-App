@@ -1,8 +1,5 @@
 "use client";
 import { useState, useEffect } from "react";
-import Link from "next/link.js";
-import FilterProducts from "@/components/FilterProducts.js";
-import Btn from "@/components/common/Btn.js";
 import Table from "@/components/common/Table/index.jsx";
 import { FormProvider, useForm } from "react-hook-form";
 import {
@@ -86,7 +83,7 @@ export default function Orders() {
 
     // Iterate over the products and extract the product names
     for (let i = 0; i < products.length; i++) {
-      let productName = products[i].productId.name;
+      let productName = products[i].productId?.name;
       productNames.push(productName);
     }
 
