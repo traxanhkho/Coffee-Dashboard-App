@@ -1,8 +1,8 @@
 export const calculateTotalProductPrice = (product) => {
-  let totalPrice = product.productId.price * product.quantity;
+  let totalPrice = product.productId?.price * product.quantity;
 
   if (product.size) {
-    const size = product.productId.sizes.find(
+    const size = product.productId?.sizes.find(
       (size) => size._id === product.size
     );
     totalPrice += size.price;
