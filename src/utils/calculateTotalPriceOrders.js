@@ -5,7 +5,7 @@ export const calculateTotalProductPrice = (product) => {
     const size = product.productId?.sizes.find(
       (size) => size._id === product.size
     );
-    totalPrice += size.price;
+    totalPrice += size?.price;
   }
 
   if (product.toppings) {

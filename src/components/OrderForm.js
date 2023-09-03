@@ -64,6 +64,8 @@ function OrderForm({
 
     let ordinalNumber = 0;
 
+    if(!products) return <p>loading....</p>
+
     return chunks.map((chunk, index) => (
       <div key={index}>
         {chunk.map((product) => {
@@ -73,7 +75,7 @@ function OrderForm({
               <div className="flex justify-between items-center">
                 <p className="text-base">{`${
                   ordinalNumber < 10 ? `0${ordinalNumber}` : ordinalNumber
-                }. ${product.productId.name} x ${product.quantity}`}</p>
+                }. ${product.productId?.name} x ${product.quantity}`}</p>
                 <PriceFormmater
                   priceInVND={calculateTotalProductPrice(product) || 0}
                 />
