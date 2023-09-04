@@ -20,10 +20,6 @@ export default function Slidebar({ children }) {
   const { onChangeNavigation, navigation, profile, imageDemo } = useLayout();
 
   const handleSignOut = () => {
-    toast.loading("Đang thực hiện đăng xuất...", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
-
     signOut();
   };
 
