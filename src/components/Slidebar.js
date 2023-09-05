@@ -9,7 +9,6 @@ import {
 import Link from "next/link";
 import { useLayout } from "@/context/LayoutContext";
 import { signOut } from "next-auth/react";
-import { toast } from "react-toastify";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");

@@ -41,8 +41,8 @@ export default function Orders() {
   const methods = useForm();
 
   const handleGetDataFromServer = async () => {
-    const { orders } = await getOrders();
-    setOrders(orders);
+    const data = await getOrders();
+    setOrders(data);
   };
 
   useEffect(() => {
