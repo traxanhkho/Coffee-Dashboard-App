@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 import _ from "lodash";
@@ -11,7 +11,6 @@ import Modal from "@/components/common/Modal";
 import SelectMenu from "@/components/common/SelectMenu";
 import Textarea from "@/components/common/Textarea";
 import ImageProductUploader from "@/components/common/ImageProductUploader";
-import { useRouter } from "next/navigation";
 import {
   createProduct,
   getProduct,
@@ -44,64 +43,68 @@ export default function ProductForm() {
     formState: { errors },
   } = methods;
 
-  const setValueForm = (productSelected) => {
-    setValue("name", productSelected.name);
-    setValue("description", productSelected.description);
-    setValue("genre", productSelected.genre);
-    setValue("price", productSelected.price);
-    setValue("numberInStock", productSelected.numberInStock);
-    if (productSelected.image) setImage(productSelected.image.url);
-    // set value price size
-
-    productSelected.sizes.forEach((size) => {
-      switch (size.name) {
-        case "nhỏ":
-          setValue("priceSizeM", size.price);
-          break;
-        case "vừa":
-          setValue("priceSizeL", size.price);
-          break;
-        case "lớn":
-          setValue("priceSizeXL", size.price);
-          break;
-      }
-    });
-
-    let toppingsToUpdate = _.cloneDeep(toppings);
-
-    productSelected.toppings.forEach((item) => {
-      const indexToUpdate = _.findIndex(toppingsToUpdate, { _id: item._id });
-      if (indexToUpdate !== -1) {
-        toppingsToUpdate[indexToUpdate].isChecked = true;
-      }
-    });
-
-    setToppings(toppingsToUpdate);
-  };
-
-  const getDataFromServer = async () => {
-    try {
-      setGenres(await getGenres());
-      const data = await getToppings();
-      if (productIdQuery) {
-        const currentProduct = await getProduct(productIdQuery);
-        setCurrentProduct(currentProduct);
-      }
-      setToppings(data?.allToppings);
-    } catch (ex) {
-      console.error(ex);
-    }
-  };
-
   useEffect(() => {
+    const getDataFromServer = async () => {
+      try {
+        setGenres(await getGenres());
+        const data = await getToppings();
+        if (productIdQuery) {
+          const currentProduct = await getProduct(productIdQuery);
+          setCurrentProduct(currentProduct);
+        }
+        setToppings(data?.allToppings);
+      } catch (ex) {
+        console.error(ex);
+      }
+    };
+
     getDataFromServer();
-  }, []);
+  }, [productIdQuery]);
+
+  const setValueForm = useCallback(
+    (productSelected) => {
+      setValue("name", productSelected.name);
+      setValue("description", productSelected.description);
+      setValue("genre", productSelected.genre);
+      setValue("price", productSelected.price);
+      setValue("numberInStock", productSelected.numberInStock);
+      if (productSelected.image) setImage(productSelected.image.url);
+      // set value price size
+
+      productSelected.sizes.forEach((size) => {
+        switch (size.name) {
+          case "nhỏ":
+            setValue("priceSizeM", parseInt(size.price));
+            break;
+          case "vừa":
+            setValue("priceSizeL", parseInt(size.price));
+            break;
+          case "lớn":
+            setValue("priceSizeXL", parseInt(size.price));
+            break;
+        }
+      });
+
+      let toppingsToUpdate = _.cloneDeep(toppings);
+
+      productSelected.toppings.forEach((item) => {
+        const indexToUpdate = _.findIndex(toppingsToUpdate, { _id: item._id });
+        if (indexToUpdate !== -1) {
+          toppingsToUpdate[indexToUpdate].isChecked = true;
+        }
+      });
+
+      setToppings(toppingsToUpdate);
+    },
+    [currentProduct, setValue]
+  );
 
   useEffect(() => {
     if (currentProduct) setValueForm(currentProduct);
-  }, [currentProduct]);
+  }, [currentProduct, setValueForm]);
 
   const onSubmit = (data) => {
+    // return console.log(data);
     let checkedToppingIds = _.chain(toppings)
       .filter({ isChecked: true })
       .map("_id")
@@ -113,7 +116,7 @@ export default function ProductForm() {
         productIdQuery,
         selectedFile,
         checkedToppingIds,
-        setError,
+        setError
       );
     } else {
       createProduct(data, selectedFile, checkedToppingIds, setError, reset);

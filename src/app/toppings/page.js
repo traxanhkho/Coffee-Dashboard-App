@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link.js";
 import Btn from "@/components/common/Btn.js";
 import Table from "@/components/common/Table/index.jsx";
@@ -17,6 +17,7 @@ import Layouts from "@/components/Layouts";
 import { useTopping } from "@/context/ToppingContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "@/components/common/Pagination";
+import ImageWrapper from "@/components/common/ImageWrapper";
 
 export default function Toppings() {
   const { toppingData, setToppingData } = useTopping();
@@ -37,10 +38,10 @@ export default function Toppings() {
     setError,
   } = useForm();
 
-  const handlePaginatePage = async () => {
-    const data = await getToppings({ page: params.get("page") });
-    setToppingData(data);
-  };
+  const handlePaginatePage = useCallback(async () =>{
+      const data = await getToppings({ page: params.get("page") });
+      setToppingData(data);
+  },[params,setToppingData])
 
   useEffect(() => {
     setToppings(toppingData.toppings);
@@ -48,7 +49,7 @@ export default function Toppings() {
 
   useEffect(() => {
     handlePaginatePage();
-  }, [params]);
+  }, [handlePaginatePage]);
 
   const handleDeleteTopping = async (toppingId) => {
     setToppings(
@@ -101,7 +102,7 @@ export default function Toppings() {
         <div className="flex items-center">
           <div className="h-10 w-10 flex-shrink-0">
             {topping.image && (
-              <img
+              <ImageWrapper
                 className="h-10 w-10 rounded-full"
                 src={topping.image.url}
                 alt={topping.image.name}

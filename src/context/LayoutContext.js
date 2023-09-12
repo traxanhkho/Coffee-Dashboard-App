@@ -1,6 +1,12 @@
 "use client";
 import _ from "lodash";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import {
   ChartPieIcon,
   ShoppingBagIcon,
@@ -72,7 +78,7 @@ function LayoutProvider({ children }) {
   const imageDemo =
     "https://png.pngtree.com/png-vector/20220611/ourmid/pngtree-person-gray-photo-placeholder-woman-in-shirt-on-gray-background-png-image_4826227.png";
 
-  const getDataFromServer = async () => {
+  const getDataFromServer = useCallback(async () => {
     if (!session) return;
     const { data: profileSelected } = await axios.get(
       `${process.env.NEXT_PUBLIC_API_KEY}/profiles/me`,
@@ -94,9 +100,13 @@ function LayoutProvider({ children }) {
       ]);
       return setProfile(userInfo);
     }
-  };
+  }, [session]);
 
   useEffect(() => {
+    getDataFromServer();
+  }, [getDataFromServer]);
+
+  const handleChangeNavigationBar = useCallback(() => {
     const currentPath = "/" + pathname.split("/")[1];
 
     const navUpdated = navigation.map((nav) =>
@@ -106,9 +116,11 @@ function LayoutProvider({ children }) {
     );
 
     setNavigation(navUpdated);
+  }, [pathname]);
 
-    getDataFromServer();
-  }, [pathname, session]);
+  useEffect(() => {
+    handleChangeNavigationBar();
+  }, [handleChangeNavigationBar]);
 
   const onChangeNavigation = (name) => {
     const newNavigation = navigation.map((item) =>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Table from "@/components/common/Table/index.jsx";
 import { FormProvider, useForm } from "react-hook-form";
+import Image from "next/image";
 import {
   deleteOrder,
   getOrders,
@@ -40,12 +41,14 @@ export default function Orders() {
 
   const methods = useForm();
 
-  const handleGetDataFromServer = async () => {
-    const data = await getOrders();
-    setOrders(data);
-  };
+  
 
   useEffect(() => {
+    const handleGetDataFromServer = async () => {
+      const data = await getOrders();
+      setOrders(data);
+    };
+    
     handleGetDataFromServer();
   }, []);
 

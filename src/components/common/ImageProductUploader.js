@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ImageWrapper from "./ImageWrapper";
 
 function ImageProductUploader({ register, setSelectedFile, image, setImage }) {
   const handleImageUpload = (event) => {
@@ -31,7 +32,7 @@ function ImageProductUploader({ register, setSelectedFile, image, setImage }) {
               />
             </svg>
           )}
-          {image && <img src={image} className="max-h-80" />}
+          {image && <ImageWrapper src={image} className="max-h-80 h-60 w-60 object-cover mx-auto" />}
           <div className="flex text-sm text-gray-600">
             <label
               htmlFor="file-upload"

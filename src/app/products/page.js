@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link.js";
 import FilterProducts from "@/components/FilterProducts.js";
 import Btn from "@/components/common/Btn.js";
@@ -26,6 +26,7 @@ import { useProduct } from "@/context/ProductContext";
 import { useSearchParams } from "next/navigation";
 import Pagination from "@/components/common/Pagination";
 import { useRouter } from "next/navigation";
+import ImageWrapper from "@/components/common/ImageWrapper";
 
 export default function Products() {
   const { productData, setProductData } = useProduct();
@@ -63,14 +64,14 @@ export default function Products() {
     setProducts(productData.products);
   }, [productData]);
 
-  const handlePaginatePage = async () => {
+  const handlePaginatePage = useCallback(async () =>{
     const data = await getProducts({ page: params.get("page") });
     setProductData(data);
-  };
+  },[params,setProductData])
 
   useEffect(() => {
     handlePaginatePage();
-  }, [params]);
+  }, [handlePaginatePage]);
 
   const handleResetGenreForm = () => {
     reset();
@@ -101,9 +102,9 @@ export default function Products() {
         <div className="flex items-center">
           <div className="h-10 w-10 flex-shrink-0">
             {product.image && (
-              <img
-                className="h-10 w-10 rounded-full"
+              <ImageWrapper
                 src={product.image.url}
+                className="h-10 w-10 rounded-full"
                 alt={product.image.name}
               />
             )}
@@ -297,7 +298,9 @@ export default function Products() {
                 {genreIdUpdate ? "Chỉnh sửa" : "Thêm"}
               </Btn>
             </form>
-            <h3 className="text-xs">*Lưu ý: click vào thẻ nhóm để cập nhật nhóm bạn nhé.</h3>
+            <h3 className="text-xs">
+              *Lưu ý: click vào thẻ nhóm để cập nhật nhóm bạn nhé.
+            </h3>
 
             <div>
               {genres?.map((genre) => (

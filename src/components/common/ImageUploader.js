@@ -1,5 +1,6 @@
 import React from "react";
 import { ArrowUpTrayIcon } from "@heroicons/react/20/solid";
+import ImageWrapper from "./ImageWrapper";
 
 const ImageUploader = ({
   register,
@@ -33,7 +34,7 @@ const ImageUploader = ({
               />
             )}
             {image && (
-              <img
+              <ImageWrapper
                 src={image}
                 className="w-full h-full object-cover"
                 alt="Uploaded"

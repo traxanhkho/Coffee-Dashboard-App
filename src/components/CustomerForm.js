@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import Modal from "./common/Modal";
 import Input from "./common/Input";
 import Btn from "./common/Btn";
@@ -14,13 +14,15 @@ function CustomerForm({
   watch,
   idUpdate,
 }) {
-  const handleResetForm = () => {
-    resetForm();
-  };
+  
+
+  const handleResetForm = useCallback(() =>{
+    if (!open) resetForm();
+  },[open,resetForm])
 
   useEffect(() => {
-    if (!open) handleResetForm();
-  }, [open]);
+     handleResetForm();
+  }, [handleResetForm]);
 
   return (
     <Modal

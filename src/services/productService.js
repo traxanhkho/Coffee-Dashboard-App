@@ -152,7 +152,7 @@ export async function saveProduct(
   checkedToppingIds,
   setError
 ) {
- 
+
   const productUpdated = {
     name: product.name,
     genre: product.genre,
@@ -185,11 +185,11 @@ export async function saveProduct(
       .items(
         Joi.object({
           name: Joi.string().required(),
-          price: Joi.number(),
+          price: Joi.number().integer().required(),
         })
       )
       .required(),
-    price: Joi.number().required(),
+    price: Joi.number().integer().required(),
     numberInStock: Joi.number().required(),
   });
 

@@ -1,5 +1,6 @@
 "use client";
 import Layouts from "@/components/Layouts";
+import ImageWrapper from "@/components/common/ImageWrapper";
 import Input from "@/components/common/Input";
 import Textarea from "@/components/common/Textarea";
 import { useLayout } from "@/context/LayoutContext";
@@ -7,7 +8,7 @@ import { validateForm } from "@/utils/validateForm";
 import axios from "axios";
 import Joi from "joi";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
@@ -36,19 +37,19 @@ export default function Profile() {
     setImage(createObjectURL(file));
   };
 
-  function setValueDefaultForm(data) {
-    if (!data) return;
-    setValue("name", data.userId.name);
-    setValue("aboutMe", data.aboutMe);
-    setValue("address", data.address);
-    setValue("numberPhone", data.numberPhone);
-    setValue("position", data.position);
-    setImage(data.image?.url);
-  }
+  const setValueDefaultForm = useCallback(() => {
+    if (!profile) return;
+    setValue("name", profile.userId.name);
+    setValue("aboutMe", profile.aboutMe);
+    setValue("address", profile.address);
+    setValue("numberPhone", profile.numberPhone);
+    setValue("position", profile.position);
+    setImage(profile.image?.url);
+  }, [profile,setValue]);
 
   useEffect(() => {
-    setValueDefaultForm(profile);
-  }, [profile]);
+    setValueDefaultForm();
+  }, [setValueDefaultForm]);
 
   const handleUpdateProfile = async (data) => {
     if (!profile) return;
@@ -201,10 +202,9 @@ export default function Profile() {
                               className="inline-block h-12 w-12 flex-shrink-0 overflow-hidden rounded-full"
                               aria-hidden="true"
                             >
-                              <img
-                                className="h-full w-full rounded-full"
+                              <ImageWrapper
                                 src={image || imageDemo}
-                                alt=""
+                                className="h-full w-full rounded-full"
                               />
                             </div>
                             <div className="ml-5 rounded-md shadow-sm">
@@ -230,11 +230,12 @@ export default function Profile() {
                         </div>
 
                         <div className="relative hidden overflow-hidden rounded-full lg:block">
-                          <img
+                          <ImageWrapper
                             className="relative h-40 w-40 rounded-full"
                             src={image || imageDemo}
                             alt="avatar"
                           />
+
                           <label
                             htmlFor="user-photo"
                             className="absolute inset-0 flex h-full w-full items-center justify-center bg-black bg-opacity-75 text-sm font-medium text-white opacity-0 focus-within:opacity-100 hover:opacity-100"

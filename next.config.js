@@ -39,5 +39,8 @@ module.exports = {
 
   // ...other config
   env: configuration.parsed,
-  
+
+  images: {
+    domains: ["storage.googleapis.com", "tailwindui.com", "png.pngtree.com"],
+  },
 };

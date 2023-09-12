@@ -1,16 +1,9 @@
-import React, { useEffect, useState } from "react";
-import Modal from "./common/Modal";
-import Input from "./common/Input";
-import Btn from "./common/Btn";
+import React, { useCallback, useEffect, useState } from "react";
 import _ from "lodash";
-import SelectMenu from "./common/SelectMenu";
 import {
   getOrder,
-  getTotalAmount,
   updateOrderStatus,
 } from "@/services/orderServices";
-import { formatNumberInSeparateThousands } from "@/utils/formatNumberInSeparateThousands";
-import { useFormContext } from "react-hook-form";
 import Post from "./common/Post";
 import PriceFormmater from "./common/PriceFormmater";
 import {
@@ -34,7 +27,7 @@ function OrderForm({
 }) {
   const [order, setOrder] = useState(null);
 
-  const handleGetOrderByOrderId = async () => {
+  const handleGetOrderByOrderId = useCallback(async () =>{
     try {
       if (selectedOrder) {
         const data = await getOrder(selectedOrder);
@@ -43,18 +36,18 @@ function OrderForm({
     } catch (ex) {
       console.error(ex);
     }
-  };
+  },[selectedOrder])
 
   useEffect(() => {
     handleGetOrderByOrderId();
-  }, [selectedOrder]);
+  }, [handleGetOrderByOrderId]);
 
   useEffect(() => {
     if (!open) {
       setOrder(null);
       setSelectedOrder(null);
     }
-  }, [open]);
+  }, [open,setSelectedOrder]);
 
   const renderOrder = (products) => {
     const chunks = _.chunk(products, Math.ceil(products.length / 2)).slice(

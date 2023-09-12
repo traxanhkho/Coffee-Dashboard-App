@@ -17,15 +17,17 @@ function ToppingForm({
   toppingIdUpdate,
 }) {
     
-  const handleResetForm = () => {
-    resetForm();
-    setToppingImage(null);
-    setSelectedFile(null);
-  };
+  
 
   useEffect(() => {
+    const handleResetForm = () => {
+      resetForm();
+      setToppingImage(null);
+      setSelectedFile(null);
+    };
+
     if (!openTopping) handleResetForm();
-  }, [openTopping]);
+  }, [openTopping,resetForm,setSelectedFile,setToppingImage]);
 
   return (
     <Modal

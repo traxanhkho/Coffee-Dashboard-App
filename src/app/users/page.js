@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Layouts from "@/components/Layouts";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -64,11 +64,14 @@ function Users() {
 
   const getUsersWithAuthToken = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_KEY}/users`, {
-        headers: {
-          "x-auth-token": session?.token, // Replace 'token' with your actual token value
-        },
-      });
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_KEY}/users`,
+        {
+          headers: {
+            "x-auth-token": session?.token, // Replace 'token' with your actual token value
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error("Error retrieving users:", error);
@@ -76,7 +79,7 @@ function Users() {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const usersData = await getUsersWithAuthToken();
       setUsers(usersData);
@@ -84,11 +87,11 @@ function Users() {
       // Handle error
       console.error(error);
     }
-  };
+  }, [session, getUsersWithAuthToken]);
 
   useEffect(() => {
     fetchData();
-  }, [session]);
+  }, [fetchData]);
 
   if (status === "loading") {
     return <p>Loading...</p>;

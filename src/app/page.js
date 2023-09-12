@@ -26,6 +26,7 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 import { useLayout } from "@/context/LayoutContext";
+import ImageWrapper from "@/components/common/ImageWrapper";
 
 const cards = [
   { name: "Account balance", href: "#", icon: ScaleIcon, amount: "$30,659.45" },
@@ -92,14 +93,6 @@ export default function Home() {
 
   return (
     <>
-      {/*
-        This example requires updating your template:
-
-        ```
-        <html class="h-full bg-gray-100">
-        <body class="h-full">
-        ```
-      */}
       <Layouts>
         <div className="min-h-full">
           <div className="flex flex-1 flex-col">
@@ -111,18 +104,18 @@ export default function Home() {
                     <div className="min-w-0 flex-1">
                       {/* Profile */}
                       <div className="flex items-center">
-                        <img
-                          className="hidden h-16 w-16 rounded-full sm:block"
+                        <ImageWrapper
                           src={profile?.image?.url}
-                          alt="avatar picture"
+                          className={"hidden h-16 w-16 rounded-full sm:block"}
                         />
+
                         <div>
                           <div className="flex items-center">
-                            <img
-                              className="h-16 w-16 rounded-full sm:hidden"
+                            <ImageWrapper
                               src={profile?.image?.url}
-                              alt="avatar picture"
+                              className="h-16 w-16 rounded-full sm:hidden"
                             />
+
                             <h1 className="ml-3 text-2xl capitalize font-bold leading-7 text-gray-900 sm:truncate sm:leading-9">
                               Hello, {profile?.userId.name}
                             </h1>

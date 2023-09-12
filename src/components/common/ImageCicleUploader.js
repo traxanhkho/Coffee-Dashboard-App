@@ -1,19 +1,27 @@
 import React, { useState } from "react";
 import { ArrowUpTrayIcon } from "@heroicons/react/20/solid";
+import ImageWrapper from "./ImageWrapper";
 
-function ImageCicleUploader({ register , name , image , setImage , setSelectedFile }) {
-  
-
+function ImageCicleUploader({
+  register,
+  name,
+  image,
+  setImage,
+  setSelectedFile,
+}) {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
-    setSelectedFile(file)
+    setSelectedFile(file);
 
     setImage(URL.createObjectURL(file));
   };
 
   return (
     <>
-      <label htmlFor={name} className="h-10 w-10 rounded-full hover:cursor-pointer overflow-hidden bg-gray-200 flex">
+      <label
+        htmlFor={name}
+        className="h-10 w-10 rounded-full hover:cursor-pointer overflow-hidden bg-gray-200 flex"
+      >
         {!image && (
           <ArrowUpTrayIcon
             className="h-6 w-6 m-auto text-gray-500"
@@ -21,7 +29,7 @@ function ImageCicleUploader({ register , name , image , setImage , setSelectedFi
           />
         )}
         {image && (
-          <img
+          <ImageWrapper
             src={image}
             className="w-full h-full object-cover"
             alt="Uploaded"

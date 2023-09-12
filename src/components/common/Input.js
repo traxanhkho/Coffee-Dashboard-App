@@ -9,7 +9,7 @@ export default function Input({
   placeholder,
   className,
   errors,
-  isPriceField , 
+  isPriceField,
   ...rest
 }) {
   return (
@@ -32,6 +32,7 @@ export default function Input({
           {...register(name)}
           type={type || "text"}
           id={name}
+          required
           className={classNames(
             errors[name]
               ? "border-red-300 placeholder-red-300 focus:border-red-500 focus:outline-none focus:ring-red-500"

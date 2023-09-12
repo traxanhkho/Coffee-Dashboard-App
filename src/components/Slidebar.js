@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 import { useLayout } from "@/context/LayoutContext";
 import { signOut } from "next-auth/react";
+import ImageWrapper from "./common/ImageWrapper";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -79,7 +80,7 @@ export default function Slidebar({ children }) {
                   </Transition.Child>
                   <div className="h-0 flex-1 overflow-y-auto pt-5 pb-4">
                     <div className="flex flex-shrink-0 items-center px-4">
-                      <img
+                      <ImageWrapper
                         className="h-8 w-auto"
                         src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=300"
                         alt="Your Company"
@@ -115,7 +116,7 @@ export default function Slidebar({ children }) {
                     <Link href="/profile" className="group block flex-shrink-0">
                       <div className="flex items-center">
                         <div>
-                          <img
+                          <ImageWrapper
                             className="inline-block h-10 w-10 rounded-full"
                             src={profile?.image?.url || imageDemo}
                             alt="user avatar"
@@ -155,11 +156,10 @@ export default function Slidebar({ children }) {
           <div className="flex min-h-0 flex-1 flex-col bg-indigo-700">
             <div className="flex flex-1 flex-col overflow-y-auto pt-5 pb-4">
               <div className="flex flex-shrink-0 items-center px-4">
-                <img
-                  className="h-8 w-auto"
+                <ImageWrapper  className="h-8 w-auto"
                   src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=300"
-                  alt="Your Company"
-                />
+                  alt="Your Company"/>
+                
               </div>
               <nav className="mt-5 flex-1 space-y-1 px-2">
                 {navigation.map((item) => (
@@ -192,11 +192,10 @@ export default function Slidebar({ children }) {
               <Link href="/profile" className="group block flex-shrink-0">
                 <div className="flex items-center">
                   <div>
-                    <img
-                      className="inline-block h-9 w-9 rounded-full"
+                    <ImageWrapper  className="inline-block h-9 w-9 rounded-full"
                       src={profile?.image?.url || imageDemo}
-                      alt="user avatar"
-                    />
+                      alt="user avatar"/>
+                   
                   </div>
                   <div className="ml-3">
                     <p className="text-sm font-medium capitalize text-white truncate max-w-[120px]">
