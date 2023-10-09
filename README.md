@@ -9,6 +9,24 @@ https://coffee-dashboard-ov9n6wzks-traxanhkho.vercel.app/
 ```
 Note: Due to the use of free hosting, the access speed may be slow. Thank you for your patience.
 
+### Account and Password
+
+To access the Dashboard Page, you will need an admin account with the appropriate credentials.
+Account : 
+```
+admin@gmail.com
+```
+password :
+```
+1234
+```
+
+### Admin Access Levels
+
+1. **Super Admin**: This level has access to all features and functionalities of the dashboard, including user management and more.
+
+2. **Manager**: Managers have access to most dashboard features but cannot access user management.
+
 ## Getting Started
 1. Clone the repository:
 
