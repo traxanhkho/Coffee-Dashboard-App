@@ -1,6 +1,6 @@
 ## Introduction
 
-This README provides an overview of the "Web Coffee Shop UI" project. This web application allows customers to conveniently place coffee orders for takeaway. Whether you run a coffee shop or a cafe, this application will streamline the ordering process and enhance the customer experience.
+The Dashboard Page provides an overview and management interface for your coffee shop or cafe's operations. This powerful tool enables you to monitor and control various aspects of your business, ensuring a smooth and efficient operation.
 
 ## Deployment
 This project is deployed using Vercel, a cloud platform for serverless deployment and hosting. You can access the live application by following this link: 
