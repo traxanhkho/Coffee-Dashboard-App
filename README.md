@@ -1,34 +1,47 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Introduction
+
+This README provides an overview of the "Web Coffee Shop UI" project. This web application allows customers to conveniently place coffee orders for takeaway. Whether you run a coffee shop or a cafe, this application will streamline the ordering process and enhance the customer experience.
+
+## Deployment
+This project is deployed using Vercel, a cloud platform for serverless deployment and hosting. You can access the live application by following this link: 
+```
+https://coffee-dashboard-ov9n6wzks-traxanhkho.vercel.app/
+```
+Note: Due to the use of free hosting, the access speed may be slow. Thank you for your patience.
 
 ## Getting Started
+1. Clone the repository:
 
-First, run the development server:
+   ```
+   https://github.com/traxanhkho/Coffee-Dashboard-App.git
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+2. Navigate to the project directory:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+   ```
+   cd Coffee-Dashboard-App
+   ```
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+3. Install the required dependencies:
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+   ```
+   npm install
+   ```
 
-## Learn More
+4. Configure the application by updating the necessary environment variables, such as API keys and database connections, in the `.env` file.
+   - Download the `.env` file and rename it to `env.local`.
+   ```
+   https://drive.google.com/file/d/1bjUEDZdi844sAAeWviVbtHsif-A3jvhy/view?usp=drive_link
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+6. Start the application:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```
+   npm run dev
+   # or
+   yarn dev
+   # or
+   pnpm dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+7. Access the application by opening a web browser and navigating to `http://localhost:3000`.
